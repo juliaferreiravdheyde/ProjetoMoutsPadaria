@@ -1,16 +1,22 @@
 ﻿namespace RazorPagesEstudo.Models
 {
-    public class Cliente
+    public class Cliente : Pessoa
     {
-        public int Id { get; set; } 
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public string Telefone { get; set; }
-        public int PontoFidelidade { get; set; }
+        public int PontosFidelidade { get; set; }
+
+        public Cliente(int id, string nome, string endereco, string cpfcnpj) : base(id, nome, endereco, cpfcnpj)
+        {
+            PontosFidelidade = 0;
+        }
+
+        public override bool ValidarIdentidade()
+        {
+            return CpfCnpj.Length == 11 || CpfCnpj.Length == 14;
+        }
 
         public int AddPontoFidelidade(int pontos)
         {
-            return PontoFidelidade += pontos;
+            return PontosFidelidade += pontos;
         }
     }
 }
