@@ -29,10 +29,5 @@ namespace RazorPagesEstudo.Models
         {
             Total = Produtos.Sum(p => p.Preco);
         }
-
-        public void GerarCupomFiscal()
-        {
-            // Método de geração de cupom pode ser adaptado para interface web.
-        }
     }
 }

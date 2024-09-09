@@ -16,5 +16,6 @@ namespace RazorPagesEstudo.Data
 
         public DbSet<RazorPagesEstudo.Models.Produto> Produto { get; set; } = default!;
         public DbSet<RazorPagesEstudo.Models.Cliente> Cliente { get; set; } = default!;
+        public DbSet<RazorPagesEstudo.Models.Venda> Venda { get; set; } = default!;
     }
 }
