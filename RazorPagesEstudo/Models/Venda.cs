@@ -16,6 +16,7 @@ namespace RazorPagesEstudo.Models
         {
             Produtos = new List<Produto>();
         }
+
         public Venda(List<Produto> produtos, string formaPagamento, Cliente cliente = null)
         {
             Produtos = produtos;

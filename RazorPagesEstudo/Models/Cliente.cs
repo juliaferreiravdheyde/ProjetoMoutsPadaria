@@ -4,6 +4,11 @@
     {
         public int PontosFidelidade { get; set; }
 
+        public Cliente()
+        {
+
+        }
+
         public Cliente(int id, string nome, string endereco, string cpfcnpj) : base(id, nome, endereco, cpfcnpj)
         {
             PontosFidelidade = 0;
