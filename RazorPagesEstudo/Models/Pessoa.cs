@@ -7,21 +7,6 @@
         public string Endereco { get; set; }
         public string CpfCnpj { get; set; }
 
-        public Pessoa()
-        {
-
-        }
-
-        public Pessoa(int id, string nome, string endereco, string cpfCnpj)
-        {
-            Id = id;
-            Nome = nome;
-            Endereco = endereco;
-            CpfCnpj = cpfCnpj;
-        }
-
         public abstract bool ValidarIdentidade();
-       
     }
-
 }

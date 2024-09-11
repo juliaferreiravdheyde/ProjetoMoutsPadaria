@@ -6,28 +6,38 @@ namespace RazorPagesEstudo.Models
     public class Venda
     {
         public int Id { get; set; }
-        public List<Produto> Produtos { get; set; }
+        public List<ItemVenda> Itens { get; set; } = new List<ItemVenda>();
+        public decimal ValorTotal { get; private set; }
+
+        // Chave estrangeira para Cliente
+        public int? ClienteId { get; set; }
+        public Cliente Cliente { get; set; } // Propriedade de navegação
+
         public string FormaPagamento { get; set; }
-        public decimal Total { get; private set; }
-        public int? ClienteID { get; set; }
-        public Cliente Cliente { get; set; }
 
-        public Venda()
-        {
-            Produtos = new List<Produto>();
-        }
+        // Construtor sem parâmetros necessário para o Entity Framework
+        public Venda() { }
 
-        public Venda(List<Produto> produtos, string formaPagamento, Cliente cliente = null)
+        // Construtor adicional para uso manual, fora do Entity Framework
+        public Venda(Cliente cliente, string formaPagamento)
         {
-            Produtos = produtos;
-            FormaPagamento = formaPagamento;
             Cliente = cliente;
-            CalcularTotal();
+            ClienteId = cliente.Id; // Relaciona o ID do cliente
+            FormaPagamento = formaPagamento;
         }
 
-        private void CalcularTotal()
+        public void AdicionarItem(ItemVenda item)
         {
-            Total = Produtos.Sum(p => p.Preco);
+            Itens.Add(item);
+            ValorTotal += item.PrecoTotal;
+        }
+
+        public void FinalizarVenda()
+        {
+            if (Cliente != null)
+            {
+                Cliente.PontosFidelidade += (int)(ValorTotal / 10); // 1 ponto por cada dez reais
+            }
         }
     }
 }
