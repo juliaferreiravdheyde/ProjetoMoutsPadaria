@@ -18,5 +18,14 @@ namespace RazorPagesEstudo.Data
         public DbSet<RazorPagesEstudo.Models.Produto> Produto { get; set; } = default!;
         public DbSet<RazorPagesEstudo.Models.ItemVenda> ItemVenda { get; set; } = default!;
         public DbSet<RazorPagesEstudo.Models.Cliente> Cliente { get; set; } = default!;
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Pessoa>()
+                .ToTable("Pessoa");
+
+            modelBuilder.Entity<Cliente>()
+                .ToTable("Cliente")
+                .HasBaseType<Pessoa>();
+        }
     }
 }
