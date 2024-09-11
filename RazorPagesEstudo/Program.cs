@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using RazorPagesEstudo.Data;
 using System.Globalization;
+using RazorPagesEstudo.Data;
 namespace RazorPagesEstudo
 {
     public class Program

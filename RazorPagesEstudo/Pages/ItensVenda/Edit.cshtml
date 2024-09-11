@@ -1,0 +1,50 @@
+﻿@page
+@model RazorPagesEstudo.Pages.ItensVenda.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>ItemVenda</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ItemVenda.Id" />
+            <div class="form-group">
+                <label asp-for="ItemVenda.VendaId" class="control-label"></label>
+                <select asp-for="ItemVenda.VendaId" class="form-control" asp-items="ViewBag.VendaId"></select>
+                <span asp-validation-for="ItemVenda.VendaId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ItemVenda.ProdutoId" class="control-label"></label>
+                <select asp-for="ItemVenda.ProdutoId" class="form-control" asp-items="ViewBag.ProdutoId"></select>
+                <span asp-validation-for="ItemVenda.ProdutoId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ItemVenda.Quantidade" class="control-label"></label>
+                <input asp-for="ItemVenda.Quantidade" class="form-control" />
+                <span asp-validation-for="ItemVenda.Quantidade" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ItemVenda.PrecoTotal" class="control-label"></label>
+                <input asp-for="ItemVenda.PrecoTotal" class="form-control" />
+                <span asp-validation-for="ItemVenda.PrecoTotal" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
