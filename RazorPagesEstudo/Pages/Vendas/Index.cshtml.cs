@@ -32,7 +32,7 @@ namespace RazorPagesEstudo.Pages.Vendas
 
         public async Task<IActionResult> OnGetAsync()
         {
-            ProdutosDisponiveis = await _context.Produto.ToListAsync(); // Access the correct entity set for Produto
+            ProdutosDisponiveis = await _context.Produto.ToListAsync();
             return Page();
         }
 
@@ -47,27 +47,27 @@ namespace RazorPagesEstudo.Pages.Vendas
 
             foreach (var produtoId in selectedProducts)
             {
-                var produto = await _context.Produto.FindAsync(produtoId); // Access the correct entity set for Produto
+                var produto = await _context.Produto.FindAsync(produtoId); 
                 if (produto != null)
                 {
-                    var itemVenda = new ItemVenda(produto, 1); // Assuming quantity is 1 for now
+                    var itemVenda = new ItemVenda(produto, 1); 
                     ItensVenda.Add(itemVenda);
                 }
             }
 
-            Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.Nome == nomeCliente); // Access the correct entity set for Cliente
+            Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.Nome == nomeCliente); 
 
             var venda = new Venda(ItensVenda, formaPagamento, Cliente);
             Total = venda.Total;
 
-            // Save sale to the database
+           
             var novaVenda = new Models.Venda
             {
                 FormaPagamento = formaPagamento,
                 Cliente = Cliente,
                 ItensVenda = ItensVenda
             };
-            _context.Venda.Add(novaVenda); // Access the correct entity set for Venda
+            _context.Venda.Add(novaVenda); 
             await _context.SaveChangesAsync();
 
             return RedirectToPage("Confirmacao", new { vendaId = novaVenda.Id });
