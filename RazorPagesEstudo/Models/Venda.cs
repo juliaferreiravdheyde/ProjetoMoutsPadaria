@@ -8,9 +8,9 @@ namespace RazorPagesEstudo.Models
     {
         public int Id { get; set; }
         public string FormaPagamento { get; set; }
-        public int? ClienteId { get; set; }  // Nullable in case there's no client
-        public Cliente Cliente { get; set; } // Navigational property for Cliente
-        public List<ItemVenda> ItensVenda { get; set; } = new List<ItemVenda>(); // List of ItemVenda
+        public int? ClienteId { get; set; }  
+        public Cliente Cliente { get; set; } 
+        public List<ItemVenda> ItensVenda { get; set; } = new List<ItemVenda>(); 
 
         public Venda() { }
 
@@ -20,16 +20,17 @@ namespace RazorPagesEstudo.Models
             FormaPagamento = formaPagamento;
             Cliente = cliente;
         }
+
         public decimal CalcularTotal()
         {
-            return ItensVenda.Sum(item => item.PrecoTotal);
+            return ItensVenda.Sum(item => item.ValorTotal);
         }
 
         public decimal Total
         {
             get
             {
-                return ItensVenda.Sum(item => item.PrecoTotal);
+                return ItensVenda.Sum(item => item.ValorTotal);
             }
         }
 
@@ -53,7 +54,7 @@ namespace RazorPagesEstudo.Models
             receipt.AppendLine("------ Produtos Comprados ------");
             foreach (var item in ItensVenda)
             {
-                receipt.AppendLine($"{item.Produto.Nome} - Qtd: {item.Quantidade} - Preço: {item.PrecoTotal:C}");
+                receipt.AppendLine($"{item.Produto.Nome} - Qtd: {item.Quantidade} - Preço: {item.ValorTotal:C}");
             }
 
             receipt.AppendLine("-------------------------------");
