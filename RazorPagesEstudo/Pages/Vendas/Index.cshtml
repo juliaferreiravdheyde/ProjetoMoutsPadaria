@@ -1,48 +1,31 @@
 ﻿@page
 @model RazorPagesEstudo.Pages.Vendas.IndexModel
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Venda";
 }
 
-<h1>Index</h1>
+<h2>Realizar Venda</h2>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Venda[0].ValorTotal)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Venda[0].Cliente)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Venda[0].FormaPagamento)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Venda) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ValorTotal)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Cliente.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FormaPagamento)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<form method="post">
+    <h4>Selecione os Produtos:</h4>
+    @foreach (var produto in Model.ProdutosDisponiveis)
+    {
+        <div>
+            <input type="checkbox" name="selectedProducts" value="@produto.Id" />
+            <label>@produto.Nome - R$ @produto.Preco</label>
+        </div>
+    }
+
+    <h4>Informe a forma de pagamento:</h4>
+    <select name="formaPagamento">
+        <option value="1">Dinheiro</option>
+        <option value="2">Cartão</option>
+        <option value="3">Pix</option>
+    </select>
+
+    <h4>Informe o nome do cliente (opcional):</h4>
+    <input type="text" name="nomeCliente" />
+
+    <br /><br />
+    <button type="submit">Finalizar Venda</button>
+</form>

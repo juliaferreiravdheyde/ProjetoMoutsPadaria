@@ -7,6 +7,9 @@
         public decimal Preco { get; set; }
         public int QuantidadeEstoque { get; set; }
 
+        // Parameterless constructor for EF
+        public Produto() { }
+
         public Produto(int id, string nome, decimal preco, int quantidadeEstoque)
         {
             Id = id;

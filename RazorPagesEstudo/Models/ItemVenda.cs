@@ -11,10 +11,10 @@
         // Propriedade de navegação
         public Produto Produto { get; set; }
 
-        // Construtor sem parâmetros para o EF
+        // Parameterless constructor for EF
         public ItemVenda() { }
 
-        // Construtor ajustado para uso manual
+        // Constructor for manual usage
         public ItemVenda(Produto produto, int quantidade)
         {
             Produto = produto;
