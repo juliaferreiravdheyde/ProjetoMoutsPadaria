@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.EntityFrameworkCore;
 using RazorPagesEstudo.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,14 +42,23 @@ namespace RazorPagesEstudo.Models
             var receipt = new System.Text.StringBuilder();
             receipt.AppendLine("********** CUPOM FISCAL **********");
             receipt.AppendLine($"Data: {DateTime.Now}");
-            receipt.AppendLine($"Forma de Pagamento: {FormaPagamento}");
+            // receipt.AppendLine($"Forma de Pagamento: {FormaPagamento}");
+            receipt.AppendLine($"Forma de Pagamento: {EscolherFormaPagamento(FormaPagamento)}");
+
 
             if (Cliente != null)
             {
                 receipt.AppendLine("------ Dados do Cliente ------");
                 receipt.AppendLine($"Nome: {Cliente.Nome}");
                 receipt.AppendLine($"CPF: {Cliente.CpfCnpj}");
+                receipt.AppendLine($"Pontos Fidelidade: {Cliente.PontosFidelidade}");
             }
+            else
+            {
+               
+                receipt.AppendLine("Cliente: Não informado");
+            }
+
             receipt.AppendLine("------------------------------");
 
             receipt.AppendLine("------ Produtos Comprados ------");
@@ -59,11 +69,12 @@ namespace RazorPagesEstudo.Models
 
             receipt.AppendLine("-------------------------------");
             receipt.AppendLine($"Total: {Total:C}");
-            receipt.AppendLine($"Pontos Fidelidade: {Cliente.PontosFidelidade}"); 
             receipt.AppendLine("********************************");
 
             return receipt.ToString();
         }
+
+
 
         public string EscolherFormaPagamento(string input)
         {

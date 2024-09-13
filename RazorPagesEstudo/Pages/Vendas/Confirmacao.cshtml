@@ -6,42 +6,7 @@
 @if (Model.Venda != null)
 {
     <div>
-        <h3>Detalhes da Venda:</h3>
-        <p><strong>Forma de Pagamento:</strong> @Model.Venda.EscolherFormaPagamento(Model.Venda.FormaPagamento)</p>
-
-        @if (Model.Venda.Cliente != null)
-        {
-            <h4>Dados do Cliente:</h4>
-            <p><strong>Nome:</strong> @Model.Venda.Cliente.Nome</p>
-            <p><strong>CPF:</strong> @Model.Venda.Cliente.CpfCnpj</p>
-
-            <h4>Pontos Fidelidade: @Model.Venda.Cliente.PontosFidelidade</h4>
-        }
-
-        <h4>Produtos:</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>Produto</th>
-                    <th>Quantidade</th>
-                    <th>Preço Unitário</th>
-                    <th>Valor Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.Venda.ItensVenda)
-                {
-                    <tr>
-                        <td>@item.Produto.Nome</td>
-                        <td>@item.Quantidade</td>
-                        <td>@item.Produto.Preco</td> 
-                        <td>@item.ValorTotal</td> 
-                    </tr>
-                }
-            </tbody>
-        </table>
-
-        <h4>Total: @Model.Venda.Total</h4> 
+        <pre>@Model.Venda.GerarCupomFiscal()</pre>
     </div>
 }
 else
