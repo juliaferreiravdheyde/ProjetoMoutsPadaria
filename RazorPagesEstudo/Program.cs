@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 using RazorPagesEstudo.Data;
+using RazorPagesEstudo.Services; // Add this line to import your Services namespace
+
 namespace RazorPagesEstudo
 {
     public class Program
@@ -15,6 +17,9 @@ namespace RazorPagesEstudo
 
             // Add services to the container.
             builder.Services.AddRazorPages();
+
+            // Register the VendaService
+            builder.Services.AddScoped<VendaService>(); // Registering the service
 
             var app = builder.Build();
 

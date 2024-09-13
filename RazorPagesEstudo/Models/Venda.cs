@@ -1,4 +1,5 @@
-﻿using RazorPagesEstudo.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using RazorPagesEstudo.Models;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,7 +11,8 @@ namespace RazorPagesEstudo.Models
         public string FormaPagamento { get; set; }
         public int? ClienteId { get; set; }  
         public Cliente Cliente { get; set; } 
-        public List<ItemVenda> ItensVenda { get; set; } = new List<ItemVenda>(); 
+        public List<ItemVenda> ItensVenda { get; set; } = new List<ItemVenda>();
+
 
         public Venda() { }
 
@@ -75,5 +77,6 @@ namespace RazorPagesEstudo.Models
                 default: return "Não especificado";
             }
         }
+
     }
 }

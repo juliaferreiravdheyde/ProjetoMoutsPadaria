@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using RazorPagesEstudo.Data;
 using RazorPagesEstudo.Models;
+using RazorPagesEstudo.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,10 +13,12 @@ namespace RazorPagesEstudo.Pages.Vendas
     public class IndexModel : PageModel
     {
         private readonly RazorPagesEstudoContext _context;
+        private readonly VendaService _vendaService;
 
-        public IndexModel(RazorPagesEstudoContext context)
+        public IndexModel(RazorPagesEstudoContext context, VendaService vendaService)
         {
             _context = context;
+            _vendaService = vendaService;
         }
 
         [BindProperty]
@@ -47,28 +50,31 @@ namespace RazorPagesEstudo.Pages.Vendas
 
             foreach (var produtoId in selectedProducts)
             {
-                var produto = await _context.Produto.FindAsync(produtoId); 
+                var produto = await _context.Produto.FindAsync(produtoId);
                 if (produto != null)
                 {
-                    var itemVenda = new ItemVenda(produto, 1); 
+                    var itemVenda = new ItemVenda(produto, 1);
                     ItensVenda.Add(itemVenda);
                 }
             }
 
-            Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.Nome == nomeCliente); 
+            Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.Nome == nomeCliente);
 
             var venda = new Venda(ItensVenda, formaPagamento, Cliente);
             Total = venda.Total;
 
-           
+            // Save the sale to the database
             var novaVenda = new Models.Venda
             {
                 FormaPagamento = formaPagamento,
                 Cliente = Cliente,
                 ItensVenda = ItensVenda
             };
-            _context.Venda.Add(novaVenda); 
+            _context.Venda.Add(novaVenda);
             await _context.SaveChangesAsync();
+
+            // Update customer loyalty points
+            _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
 
             return RedirectToPage("Confirmacao", new { vendaId = novaVenda.Id });
         }
