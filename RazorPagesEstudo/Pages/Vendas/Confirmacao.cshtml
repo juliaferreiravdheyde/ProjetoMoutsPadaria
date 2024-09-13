@@ -14,6 +14,8 @@
             <h4>Dados do Cliente:</h4>
             <p><strong>Nome:</strong> @Model.Venda.Cliente.Nome</p>
             <p><strong>CPF:</strong> @Model.Venda.Cliente.CpfCnpj</p>
+
+            <h4>Pontos Fidelidade: @Model.Venda.Cliente.PontosFidelidade</h4>
         }
 
         <h4>Produtos:</h4>
@@ -32,13 +34,17 @@
                     <tr>
                         <td>@item.Produto.Nome</td>
                         <td>@item.Quantidade</td>
-                        <td>@item.Produto.Preco</td>
-                        <td>@item.ValorTotal</td>
+                        <td>@item.Produto.Preco:C</td> 
+                        <td>@item.ValorTotal:C</td> 
                     </tr>
                 }
             </tbody>
         </table>
 
-        <h4>Total: @Model.Venda.Total:C</h4>
+        <h4>Total: @Model.Venda.Total:C</h4> 
     </div>
+}
+else
+{
+    <p>Venda não encontrada.</p>
 }

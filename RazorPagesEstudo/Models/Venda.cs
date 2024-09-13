@@ -43,16 +43,14 @@ namespace RazorPagesEstudo.Models
             receipt.AppendLine($"Data: {DateTime.Now}");
             receipt.AppendLine($"Forma de Pagamento: {FormaPagamento}");
 
-          
             if (Cliente != null)
             {
                 receipt.AppendLine("------ Dados do Cliente ------");
                 receipt.AppendLine($"Nome: {Cliente.Nome}");
-                receipt.AppendLine($"CPF: {Cliente.CpfCnpj}");  
+                receipt.AppendLine($"CPF: {Cliente.CpfCnpj}");
             }
             receipt.AppendLine("------------------------------");
 
-         
             receipt.AppendLine("------ Produtos Comprados ------");
             foreach (var item in ItensVenda)
             {
@@ -61,9 +59,9 @@ namespace RazorPagesEstudo.Models
 
             receipt.AppendLine("-------------------------------");
             receipt.AppendLine($"Total: {Total:C}");
+            receipt.AppendLine($"Pontos Fidelidade: {Cliente.PontosFidelidade}"); 
             receipt.AppendLine("********************************");
 
-            
             return receipt.ToString();
         }
 
