@@ -28,7 +28,7 @@ namespace RazorPagesEstudo.Pages.Clientes
         public Cliente Cliente { get; set; } = default!;
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             if (!ModelState.IsValid)
             {
@@ -37,6 +37,11 @@ namespace RazorPagesEstudo.Pages.Clientes
 
             _context.Cliente.Add(Cliente);
             await _context.SaveChangesAsync();
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
 
             return RedirectToPage("./Index");
         }
