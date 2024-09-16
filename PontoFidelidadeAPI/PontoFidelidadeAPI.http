@@ -1,0 +1,6 @@
+@PontoFidelidadeAPI_HostAddress = http://localhost:5262
+
+GET {{PontoFidelidadeAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
