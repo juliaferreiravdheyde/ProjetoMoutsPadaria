@@ -30,7 +30,7 @@ namespace RazorPagesEstudo.Services
         {
             if (cliente != null)
             {
-                int pontosGanhosPorItem = itensVenda.Count; // Example: 1 point per item sold
+                int pontosGanhosPorItem = itensVenda.Count; 
                 cliente.PontosFidelidade += pontosGanhosPorItem;
 
                 _context.Cliente.Update(cliente);

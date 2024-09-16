@@ -60,10 +60,15 @@ namespace RazorPagesEstudo.Pages.Vendas
 
             Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.Nome == nomeCliente);
 
+            if (Cliente == null)
+            {
+                ModelState.AddModelError(string.Empty, "Usuário não encontrado. Você será redirecionado para a tela de cadastro.");
+                return RedirectToPage("/Clientes/Create", new { nome = nomeCliente });
+            }
+
             var venda = new Venda(ItensVenda, formaPagamento, Cliente);
             Total = venda.Total;
 
-            // Save the sale to the database
             var novaVenda = new Models.Venda
             {
                 FormaPagamento = formaPagamento,
@@ -73,10 +78,11 @@ namespace RazorPagesEstudo.Pages.Vendas
             _context.Venda.Add(novaVenda);
             await _context.SaveChangesAsync();
 
-            // Update customer loyalty points
             _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
 
             return RedirectToPage("Confirmacao", new { vendaId = novaVenda.Id });
         }
+
+
     }
 }

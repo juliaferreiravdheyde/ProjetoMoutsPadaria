@@ -6,7 +6,10 @@
 
 <h2>Realizar Venda</h2>
 
-<form method="post">
+<!-- Add an element for displaying error messages -->
+<div id="error-message" style="color: red;"></div>
+
+<form method="post" id="vendaForm">
     <h4>Selecione os Produtos:</h4>
     @foreach (var produto in Model.ProdutosDisponiveis)
     {
@@ -27,5 +30,8 @@
     <input type="text" name="nomeCliente" />
 
     <br /><br />
-    <button type="submit">Finalizar Venda</button>
+   
+    <button type="submit" onclick="return validateVendaForm()">Finalizar Venda</button>
 </form>
+
+<script src="~/js/venda-validation.js"></script>

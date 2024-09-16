@@ -6,19 +6,16 @@
         public int VendaId { get; set; } 
         public int ProdutoId { get; set; } 
         public int Quantidade { get; set; }
-        public decimal ValorTotal { get; set; } // Será preenchido manualmente com Produto.Preco * Quantidade
+        public decimal ValorTotal { get; set; } 
 
-        // Propriedade de navegação
         public Produto Produto { get; set; }
-
-        // Parameterless constructor for EF
+     
         public ItemVenda() { }
 
-        // Constructor for manual usage
         public ItemVenda(Produto produto, int quantidade)
         {
             Produto = produto;
-            ProdutoId = produto.Id; // Armazena o ID do Produto
+            ProdutoId = produto.Id; 
             Quantidade = quantidade;
             ValorTotal = produto.Preco * quantidade;
         }
