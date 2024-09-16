@@ -38,7 +38,7 @@ namespace RazorPagesEstudo.Pages.Vendas
             ProdutosDisponiveis = await _context.Produto.ToListAsync();
             return Page();
         }
-
+        /*
         public async Task<IActionResult> OnPostAsync(int[] selectedProducts, string formaPagamento, string nomeCliente)
         {
             if (selectedProducts.Length == 0 || string.IsNullOrEmpty(formaPagamento))
@@ -82,6 +82,63 @@ namespace RazorPagesEstudo.Pages.Vendas
 
             return RedirectToPage("Confirmacao", new { vendaId = novaVenda.Id });
         }
+      */
+        public async Task<IActionResult> OnPostAsync(int[] selectedProducts, string formaPagamento, string nomeCliente)
+        {
+            // Validate selected products and payment method
+            if (selectedProducts.Length == 0 || string.IsNullOrEmpty(formaPagamento))
+            {
+                ModelState.AddModelError(string.Empty, "Selecione produtos e informe a forma de pagamento.");
+                ProdutosDisponiveis = await _context.Produto.ToListAsync();
+                return Page();
+            }
+
+            foreach (var produtoId in selectedProducts)
+            {
+                var produto = await _context.Produto.FindAsync(produtoId);
+                if (produto != null)
+                {
+                    var itemVenda = new ItemVenda(produto, 1);
+                    ItensVenda.Add(itemVenda);
+                }
+            }
+
+            Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.Nome == nomeCliente);
+            bool customerExists = Cliente != null;
+
+   
+            TempData["CustomerExists"] = customerExists;
+
+    
+            if (!customerExists && !string.IsNullOrEmpty(nomeCliente))
+            {
+               
+                ModelState.AddModelError(string.Empty, "Usuário não encontrado. Você será redirecionado para a tela de cadastro.");
+                return Page();
+            }
+
+            var venda = new Venda(ItensVenda, formaPagamento, Cliente);
+            Total = venda.Total;
+
+            var novaVenda = new Models.Venda
+            {
+                FormaPagamento = formaPagamento,
+                Cliente = Cliente, 
+                ItensVenda = ItensVenda
+            };
+
+            _context.Venda.Add(novaVenda);
+            await _context.SaveChangesAsync();
+
+            if (customerExists)
+            {
+                _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
+            }
+
+
+            return RedirectToPage("Confirmacao", new { vendaId = novaVenda.Id });
+        }
+
 
 
     }

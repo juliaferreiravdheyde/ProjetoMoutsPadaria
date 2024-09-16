@@ -2,21 +2,35 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
-
+// venda-validation.js
+// venda-validation.js
 function validateVendaForm() {
-    // Check if any product is selected
     const selectedProducts = document.querySelectorAll('input[name="selectedProducts"]:checked');
     if (selectedProducts.length === 0) {
         document.getElementById('error-message').innerText = 'Selecione ao menos um produto para finalizar a venda.';
-        return false;  // Prevent form submission
+        return false;
     }
 
-    // Check if a payment method is selected
     const formaPagamento = document.querySelector('select[name="formaPagamento"]').value;
     if (!formaPagamento) {
         document.getElementById('error-message').innerText = 'Informe a forma de pagamento.';
-        return false;  // Prevent form submission
+        return false;
     }
 
-    return true;  // Allow form submission
+    const nomeCliente = document.querySelector('input[name="nomeCliente"]').value.trim();
+
+    const customerExists = document.getElementById('customerExists').value === 'true';
+
+    if (nomeCliente && !customerExists) {
+        const userConfirmed = confirm("Cliente não encontrado. Deseja cadastrar este cliente?");
+        if (userConfirmed) {
+     
+            window.location.href = '/Clientes/Create?nome=' + encodeURIComponent(nomeCliente);
+            return false; 
+        } else {
+            return true; 
+        }
+    }
+
+    return true; 
 }
