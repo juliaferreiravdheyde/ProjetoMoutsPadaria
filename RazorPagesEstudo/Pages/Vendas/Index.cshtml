@@ -4,35 +4,71 @@
     ViewData["Title"] = "Venda";
 }
 
-<h2>Realizar Venda</h2>
+<!-- Add Bootstrap CSS Link -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<!-- Link to the custom CSS file -->
+<link rel="stylesheet" href="~/css/styles.css">
 
-<div id="error-message" style="color: red;"></div>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Realizar Venda</h2>
 
-<form method="post" id="vendaForm">
-    <h4>Selecione os Produtos:</h4>
-    @foreach (var produto in Model.ProdutosDisponiveis)
-    {
-        <div>
-            <input type="checkbox" name="selectedProducts" value="@produto.Id" />
-            <label>@produto.Nome - R$ @produto.Preco</label>
-            <input type="number" name="quantidades" min="1" value="1" style="width: 50px;" placeholder="Quantidade" />
+    <div id="error-message" class="alert alert-danger error-message" role="alert">
+        @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+
+    <form method="post" id="vendaForm" class="mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Selecione os Produtos:</h4>
+                <div class="form-group">
+                    @foreach (var produto in Model.ProdutosDisponiveis)
+                    {
+                        <div class="form-check d-flex align-items-center mb-3">
+                            <input class="form-check-input me-2" type="checkbox" name="selectedProducts" value="@produto.Id" id="produto_@produto.Id" />
+                            <label class="form-check-label me-2" for="produto_@produto.Id">
+                                @produto.Nome - R$ @produto.Preco
+                            </label>
+                            <input type="number" name="quantidades" min="1" value="1" class="form-control w-25" placeholder="Quantidade" />
+                        </div>
+                    }
+                </div>
+
+                <h4 class="card-title">Informe a forma de pagamento:</h4>
+                <div class="form-group">
+                    <select name="formaPagamento" class="form-control">
+                        <option value="1">Dinheiro</option>
+                        <option value="2">Cartão</option>
+                        <option value="3">Pix</option>
+                    </select>
+                </div>
+
+                <h4 class="card-title d-flex justify-content-between align-items-center">
+                    Informe o CPF/CNPJ Cadastrado para computar seus pontos (opcional):
+                    <a href="/clientes/create" class="btn btn-link">Cadastre-se</a>
+                </h4>
+                <div class="form-group">
+                    <input type="text" name="cpfCnpj" class="form-control" placeholder="CPF ou CNPJ" />
+                </div>
+
+                <button type="submit" onclick="return validateVendaForm()" class="btn btn-success btn-lg btn-block">Finalizar Venda</button>
+            </div>
         </div>
-    }
+    </form>
+</div>
 
-    <h4>Informe a forma de pagamento:</h4>
-    <select name="formaPagamento">
-        <option value="1">Dinheiro</option>
-        <option value="2">Cartão</option>
-        <option value="3">Pix</option>
-    </select>
-
-    <h4>Informe o nome do cliente (opcional):</h4>
-    <input type="text" name="nomeCliente" />
-
-    <input type="hidden" id="customerExists" name="customerExists" value="false" />
-
-    <br /><br />
-    <button type="submit" onclick="return validateVendaForm()">Finalizar Venda</button>
-</form>
-
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="~/js/venda-validation.js"></script>
+
+<script>
+    // Show error messages if there are any
+    $(document).ready(function() {
+        var errors = $('#error-message').find('div').length;
+        if (errors > 0) {
+            $('#error-message').show();
+        }
+    });
+</script>

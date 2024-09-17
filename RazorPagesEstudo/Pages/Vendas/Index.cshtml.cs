@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using RazorPagesEstudo.Data;
 using RazorPagesEstudo.Models;
 using RazorPagesEstudo.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,68 +26,30 @@ namespace RazorPagesEstudo.Pages.Vendas
         [BindProperty]
         public List<Produto> ProdutosDisponiveis { get; set; }
         [BindProperty]
+        public List<Cliente> ClientesDisponiveis { get; set; }
+        [BindProperty]
         public List<ItemVenda> ItensVenda { get; set; } = new List<ItemVenda>();
         [BindProperty]
         public string FormaPagamento { get; set; }
         [BindProperty]
         public string NomeCliente { get; set; }
+        public string cpfCnpj { get; set; }
         public Cliente Cliente { get; set; }
+        //public Pessoa Pessoa { get; set; }
 
         public decimal Total { get; private set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
             ProdutosDisponiveis = await _context.Produto.ToListAsync();
+
+            ClientesDisponiveis = await _context.Cliente.ToListAsync();
             return Page();
         }
-        /*
-        public async Task<IActionResult> OnPostAsync(int[] selectedProducts, string formaPagamento, string nomeCliente)
+     
+        public async Task<IActionResult> OnPostAsync(int[] selectedProducts, int[] quantidades, string formaPagamento, string cpfCnpj)
         {
-            if (selectedProducts.Length == 0 || string.IsNullOrEmpty(formaPagamento))
-            {
-                ModelState.AddModelError(string.Empty, "Selecione produtos e informe a forma de pagamento.");
-                ProdutosDisponiveis = await _context.Produto.ToListAsync();
-                return Page();
-            }
-
-            foreach (var produtoId in selectedProducts)
-            {
-                var produto = await _context.Produto.FindAsync(produtoId);
-                if (produto != null)
-                {
-                    var itemVenda = new ItemVenda(produto, 1);
-                    ItensVenda.Add(itemVenda);
-                }
-            }
-
-            Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.Nome == nomeCliente);
-
-            if (Cliente == null)
-            {
-                ModelState.AddModelError(string.Empty, "Usuário não encontrado. Você será redirecionado para a tela de cadastro.");
-                return RedirectToPage("/Clientes/Create", new { nome = nomeCliente });
-            }
-
-            var venda = new Venda(ItensVenda, formaPagamento, Cliente);
-            Total = venda.Total;
-
-            var novaVenda = new Models.Venda
-            {
-                FormaPagamento = formaPagamento,
-                Cliente = Cliente,
-                ItensVenda = ItensVenda
-            };
-            _context.Venda.Add(novaVenda);
-            await _context.SaveChangesAsync();
-
-            _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
-
-            return RedirectToPage("Confirmacao", new { vendaId = novaVenda.Id });
-        }
-  */
-        public async Task<IActionResult> OnPostAsync(int[] selectedProducts, int[] quantidades, string formaPagamento, string nomeCliente)
-        {
-            // Check if products and payment method are selected
+            
             if (selectedProducts.Length == 0 || string.IsNullOrEmpty(formaPagamento) || selectedProducts.Length != quantidades.Length)
             {
                 ModelState.AddModelError(string.Empty, "Selecione produtos e informe a forma de pagamento. As quantidades devem corresponder aos produtos.");
@@ -93,7 +57,6 @@ namespace RazorPagesEstudo.Pages.Vendas
                 return Page();
             }
 
-            // Initialize the list for sale items
             ItensVenda = new List<ItemVenda>();
 
             for (int i = 0; i < selectedProducts.Length; i++)
@@ -101,46 +64,37 @@ namespace RazorPagesEstudo.Pages.Vendas
                 var produtoId = selectedProducts[i];
                 var quantidade = quantidades[i];
 
-                // Find the product in the database
                 var produto = await _context.Produto.FindAsync(produtoId);
                 if (produto != null && quantidade > 0)
                 {
-                    // Create an ItemVenda with the product and its quantity
                     var itemVenda = new ItemVenda(produto, quantidade);
                     ItensVenda.Add(itemVenda);
                 }
             }
 
-            // Check for the client
-            Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.Nome == nomeCliente);
+            Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.CpfCnpj == cpfCnpj);
 
-            if (Cliente == null)
-            {
-                ModelState.AddModelError(string.Empty, "Usuário não encontrado. Você será redirecionado para a tela de cadastro.");
-                return RedirectToPage("/Clientes/Create", new { nome = nomeCliente });
-            }
+            decimal total = ItensVenda.Sum(item => item.ValorTotal);
 
-            // Create the sale
-            var venda = new Venda(ItensVenda, formaPagamento, Cliente);
-            Total = venda.Total;
-
-            // Create the new sale record
             var novaVenda = new Models.Venda
             {
                 FormaPagamento = formaPagamento,
+                ValorTotal = total, 
                 Cliente = Cliente,
-                ItensVenda = ItensVenda
             };
 
-            _context.Venda.Add(novaVenda);
-            await _context.SaveChangesAsync();
-
-            // Update loyalty points
-            _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
-
-            return RedirectToPage("Confirmacao", new { vendaId = novaVenda.Id });
+            try
+            {
+                _vendaService.AddVenda(novaVenda);
+                _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
+                return RedirectToPage("Confirmacao", new { vendaId = novaVenda.Id });
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                ProdutosDisponiveis = await _context.Produto.ToListAsync();
+                return Page();
+            }
         }
-
-
     }
 }

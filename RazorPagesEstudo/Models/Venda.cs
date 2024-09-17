@@ -8,11 +8,15 @@ namespace RazorPagesEstudo.Models
 {
     public class Venda
     {
+        internal string validaCpf;
+        internal string? cpfCnpj;
+
         public int Id { get; set; }
         public string FormaPagamento { get; set; }
         public int? ClienteId { get; set; }  
         public Cliente Cliente { get; set; } 
         public List<ItemVenda> ItensVenda { get; set; } = new List<ItemVenda>();
+        public decimal ValorTotal { get; set; }
 
 
         public Venda() { }
@@ -36,6 +40,7 @@ namespace RazorPagesEstudo.Models
                 return ItensVenda.Sum(item => item.ValorTotal);
             }
         }
+
 
         public string GerarCupomFiscal()
         {
@@ -73,8 +78,6 @@ namespace RazorPagesEstudo.Models
 
             return receipt.ToString();
         }
-
-
 
         public string EscolherFormaPagamento(string input)
         {

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 using RazorPagesEstudo.Data;
-using RazorPagesEstudo.Services; // Add this line to import your Services namespace
+using RazorPagesEstudo.Services;
 
 namespace RazorPagesEstudo
 {
@@ -12,22 +12,26 @@ namespace RazorPagesEstudo
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddDbContext<RazorPagesEstudoContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("RazorPagesEstudoContext") ?? throw new InvalidOperationException("Connection string 'RazorPagesEstudoContext' not found.")));
 
-            // Add services to the container.
+            
+            builder.Services.AddDbContext<RazorPagesEstudoContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("RazorPagesEstudoContext")
+                    ?? throw new InvalidOperationException("Connection string 'RazorPagesEstudoContext' not found.")));
+
             builder.Services.AddRazorPages();
 
-            // Register the VendaService
-            builder.Services.AddScoped<VendaService>(); // Registering the service
+          
+            builder.Services.AddScoped<VendaService>();
+
+           
+            builder.Services.AddSession(); 
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+           
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -47,6 +51,9 @@ namespace RazorPagesEstudo
             app.UseRouting();
 
             app.UseAuthorization();
+
+       
+            app.UseSession(); 
 
             app.MapRazorPages();
 
