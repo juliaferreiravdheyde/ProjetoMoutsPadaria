@@ -1,0 +1,15 @@
+﻿@page "{vendaId:int}"
+@model RazorPagesEstudo.Pages.Vendas.ConfirmacaoModel
+
+<h2>Recibo da Venda</h2>
+
+@if (Model.Venda != null)
+{
+    <div>
+        <pre>@Model.Venda.GerarCupomFiscal()</pre>
+    </div>
+}
+else
+{
+    <p>Venda não encontrada.</p>
+}

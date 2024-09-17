@@ -18,6 +18,8 @@ namespace RazorPagesEstudo.Data
         public DbSet<RazorPagesEstudo.Models.Produto> Produto { get; set; } = default!;
         public DbSet<RazorPagesEstudo.Models.ItemVenda> ItemVenda { get; set; } = default!;
         public DbSet<RazorPagesEstudo.Models.Cliente> Cliente { get; set; } = default!;
+        public IEnumerable<object> Pessoa { get; internal set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Pessoa>()

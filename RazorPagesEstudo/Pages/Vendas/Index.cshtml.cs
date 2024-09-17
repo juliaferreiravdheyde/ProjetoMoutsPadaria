@@ -1,30 +1,102 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using RazorPagesEstudo.Data;
 using RazorPagesEstudo.Models;
+using RazorPagesEstudo.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RazorPagesEstudo.Pages.Vendas
 {
     public class IndexModel : PageModel
     {
-        private readonly RazorPagesEstudo.Data.RazorPagesEstudoContext _context;
+        private readonly RazorPagesEstudoContext _context;
+        private readonly VendaService _vendaService;
 
-        public IndexModel(RazorPagesEstudo.Data.RazorPagesEstudoContext context)
+        public IndexModel(RazorPagesEstudoContext context, VendaService vendaService)
         {
             _context = context;
+            _vendaService = vendaService;
         }
 
-        public IList<Venda> Venda { get;set; } = default!;
+        [BindProperty]
+        public List<Produto> ProdutosDisponiveis { get; set; }
+        [BindProperty]
+        public List<Cliente> ClientesDisponiveis { get; set; }
+        [BindProperty]
+        public List<ItemVenda> ItensVenda { get; set; } = new List<ItemVenda>();
+        [BindProperty]
+        public string FormaPagamento { get; set; }
+        [BindProperty]
+        public string NomeCliente { get; set; }
+        public string cpfCnpj { get; set; }
+        public Cliente Cliente { get; set; }
+        //public Pessoa Pessoa { get; set; }
 
-        public async Task OnGetAsync()
+        public decimal Total { get; private set; }
+
+        public async Task<IActionResult> OnGetAsync()
         {
-            Venda = await _context.Venda
-                .Include(v => v.Cliente).ToListAsync();
+            ProdutosDisponiveis = await _context.Produto.ToListAsync();
+
+            ClientesDisponiveis = await _context.Cliente.ToListAsync();
+            return Page();
         }
+
+        public async Task<IActionResult> OnPostAsync(int[] selectedProducts, int[] quantidades, string formaPagamento, string cpfCnpj)
+        {
+            ItensVenda = new List<ItemVenda>();
+
+            for (int i = 0; i < selectedProducts.Length; i++)
+            {
+                var produtoId = selectedProducts[i];
+                var quantidade = quantidades[i];
+
+                var produto = await _context.Produto.FindAsync(produtoId);
+                if (produto != null && quantidade > 0)
+                {
+                    var itemVenda = new ItemVenda(produto, quantidade);
+                    ItensVenda.Add(itemVenda);
+                }
+            }
+
+            Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.CpfCnpj == cpfCnpj);
+
+            decimal total = ItensVenda.Sum(item => item.ValorTotal);
+
+            var novaVenda = new Models.Venda
+            {
+                FormaPagamento = formaPagamento,
+                ValorTotal = total,
+                Cliente = Cliente,
+                ItensVenda = ItensVenda 
+            };
+
+            try
+            {
+                var vendaCriada = _vendaService.AddVenda(novaVenda);
+
+                foreach (var item in ItensVenda)
+                {
+                    item.VendaId = vendaCriada.Id; 
+                    _context.ItemVenda.Add(item); 
+                }
+                await _context.SaveChangesAsync(); 
+
+                _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
+                return RedirectToPage("Confirmacao", new { vendaId = vendaCriada.Id });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Erro ao registrar a venda: " + ex.Message);
+                return Page();
+            }
+        }
+
+
     }
 }

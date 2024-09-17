@@ -7,6 +7,9 @@
         public string Endereco { get; set; }
         public string CpfCnpj { get; set; }
 
+        // Parameterless constructor for EF
+        public Pessoa() { }
+
         public abstract bool ValidarIdentidade();
     }
 }

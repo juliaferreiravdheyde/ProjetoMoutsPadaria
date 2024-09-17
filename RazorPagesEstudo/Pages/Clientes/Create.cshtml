@@ -14,8 +14,7 @@
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Cliente.PontosFidelidade" class="control-label"></label>
-                <input asp-for="Cliente.PontosFidelidade" class="form-control" />
+
                 <span asp-validation-for="Cliente.PontosFidelidade" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -41,7 +40,8 @@
 </div>
 
 <div>
-    <a asp-page="Index">Back to List</a>
+    <a asp-page="Index">Ir para Lista</a>
+    <a asp-page="/Vendas/Index">Voltar para Vendas</a> 
 </div>
 
 @section Scripts {

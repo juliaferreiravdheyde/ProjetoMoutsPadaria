@@ -1,43 +1,92 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.EntityFrameworkCore;
+using RazorPagesEstudo.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RazorPagesEstudo.Models
 {
     public class Venda
     {
+        internal string validaCpf;
+        internal string? cpfCnpj;
+
         public int Id { get; set; }
-        public List<ItemVenda> Itens { get; set; } = new List<ItemVenda>();
-        public decimal ValorTotal { get; private set; }
-
-        // Chave estrangeira para Cliente
-        public int? ClienteId { get; set; }
-        public Cliente Cliente { get; set; } // Propriedade de navegação
-
         public string FormaPagamento { get; set; }
+        public int? ClienteId { get; set; }  
+        public Cliente Cliente { get; set; } 
+        public List<ItemVenda> ItensVenda { get; set; } = new List<ItemVenda>();
+        public decimal ValorTotal { get; set; }
 
-        // Construtor sem parâmetros necessário para o Entity Framework
+
         public Venda() { }
 
-        // Construtor adicional para uso manual, fora do Entity Framework
-        public Venda(Cliente cliente, string formaPagamento)
+        public Venda(List<ItemVenda> itensVenda, string formaPagamento, Cliente cliente = null)
         {
-            Cliente = cliente;
-            ClienteId = cliente.Id; // Relaciona o ID do cliente
+            ItensVenda = itensVenda;
             FormaPagamento = formaPagamento;
+            Cliente = cliente;
         }
 
-        public void AdicionarItem(ItemVenda item)
+        public decimal CalcularTotal()
         {
-            Itens.Add(item);
-            ValorTotal += item.PrecoTotal;
+            return ItensVenda.Sum(item => item.ValorTotal);
         }
-
-        public void FinalizarVenda()
+        
+        public decimal Total
         {
-            if (Cliente != null)
+            get
             {
-                Cliente.PontosFidelidade += (int)(ValorTotal / 10); // 1 ponto por cada dez reais
+                return ItensVenda.Sum(item => item.ValorTotal);
             }
         }
+        
+        public string GerarCupomFiscal()
+        {
+            var receipt = new System.Text.StringBuilder();
+            receipt.AppendLine("********** CUPOM FISCAL **********");
+            receipt.AppendLine($"Data: {DateTime.Now}");
+            receipt.AppendLine($"Forma de Pagamento: {EscolherFormaPagamento(FormaPagamento)}");
+
+            if (Cliente != null)
+            {
+                receipt.AppendLine("------ Dados do Cliente ------");
+                receipt.AppendLine($"Nome: {Cliente.Nome}");
+                receipt.AppendLine($"CPF: {Cliente.CpfCnpj}");
+                receipt.AppendLine($"Pontos Fidelidade: {Cliente.PontosFidelidade}");
+            }
+            else
+            {
+                receipt.AppendLine("Cliente: Não informado");
+            }
+
+            receipt.AppendLine("------------------------------");
+            receipt.AppendLine("------ Produtos Comprados ------");
+
+            
+            foreach (var item in ItensVenda) 
+            {
+                receipt.AppendLine($"{item.Produto.Nome} - Qtd: {item.Quantidade} - Preço: {item.ValorTotal:C}");
+            }
+
+            receipt.AppendLine("-------------------------------");
+            receipt.AppendLine($"Total: {Total:C}");
+            receipt.AppendLine("********************************");
+
+            return receipt.ToString();
+        }
+
+
+        public string EscolherFormaPagamento(string input)
+        {
+            switch (input)
+            {
+                case "1": return "Dinheiro";
+                case "2": return "Cartão";
+                case "3": return "Pix";
+                default: return "Não especificado";
+            }
+        }
+
     }
 }
