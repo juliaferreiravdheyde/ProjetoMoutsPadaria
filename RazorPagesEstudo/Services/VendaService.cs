@@ -27,14 +27,18 @@ namespace RazorPagesEstudo.Services
             {
                 throw new InvalidOperationException("Cliente não encontrado.");
             }
-            */ 
-            
+             */
+            if (venda.ItensVenda == null || !venda.ItensVenda.Any())
+            {
+                throw new InvalidOperationException("Não é possível registrar uma venda sem itens.");
+            }
+
             string insertQuery = "INSERT INTO Venda (FormaPagamento, ValorTotal, ClienteId) VALUES (@FormaPagamento, @ValorTotal, @ClienteId); SELECT SCOPE_IDENTITY();";
 
             using (SqlConnection connection = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
             using (SqlCommand command = new SqlCommand(insertQuery, connection))
             {
-                // Set up parameters
+               
                 command.Parameters.AddWithValue("@FormaPagamento", venda.FormaPagamento);
                 command.Parameters.AddWithValue("@ValorTotal", venda.ValorTotal); 
                 command.Parameters.AddWithValue("@ClienteId", venda.Cliente?.Id ?? (object)DBNull.Value); 

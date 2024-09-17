@@ -32,7 +32,7 @@ namespace RazorPagesEstudo.Models
         {
             return ItensVenda.Sum(item => item.ValorTotal);
         }
-
+        
         public decimal Total
         {
             get
@@ -40,7 +40,7 @@ namespace RazorPagesEstudo.Models
                 return ItensVenda.Sum(item => item.ValorTotal);
             }
         }
-
+        
         public string GerarCupomFiscal()
         {
             var receipt = new System.Text.StringBuilder();

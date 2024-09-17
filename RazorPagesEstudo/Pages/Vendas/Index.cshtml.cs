@@ -49,13 +49,6 @@ namespace RazorPagesEstudo.Pages.Vendas
 
         public async Task<IActionResult> OnPostAsync(int[] selectedProducts, int[] quantidades, string formaPagamento, string cpfCnpj)
         {
-            if (selectedProducts.Length == 0 || string.IsNullOrEmpty(formaPagamento) || selectedProducts.Length != quantidades.Length)
-            {
-                ModelState.AddModelError(string.Empty, "Selecione produtos e informe a forma de pagamento. As quantidades devem corresponder aos produtos.");
-                ProdutosDisponiveis = await _context.Produto.ToListAsync();
-                return Page();
-            }
-
             ItensVenda = new List<ItemVenda>();
 
             for (int i = 0; i < selectedProducts.Length; i++)
@@ -97,10 +90,9 @@ namespace RazorPagesEstudo.Pages.Vendas
                 _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
                 return RedirectToPage("Confirmacao", new { vendaId = vendaCriada.Id });
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                ProdutosDisponiveis = await _context.Produto.ToListAsync();
+                ModelState.AddModelError(string.Empty, "Erro ao registrar a venda: " + ex.Message);
                 return Page();
             }
         }

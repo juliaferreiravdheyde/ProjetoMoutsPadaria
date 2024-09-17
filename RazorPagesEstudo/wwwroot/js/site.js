@@ -5,8 +5,16 @@
 // venda-validation.js
 // venda-validation.js
 
+
+$(document).ready(function () {
+    var errors = $('#error-message').find('div').length;
+    if (errors > 0) {
+        $('#error-message').show();
+    }
+});
+
 function validateVendaForm() {
-    const selectedProducts = document.querySelectorAll('input[name="selectedProducts"]:checked');
+  /*  const selectedProducts = document.querySelectorAll('input[name="selectedProducts"]:checked');
     if (selectedProducts.length === 0) {
         document.getElementById('error-message').innerText = 'Selecione ao menos um produto para finalizar a venda.';
         return false;
@@ -17,45 +25,7 @@ function validateVendaForm() {
         document.getElementById('error-message').innerText = 'Informe a forma de pagamento.';
         return false;
     }
-
+*/
 
     return true;
 }
-
-
-/*
-function validateVendaForm() {
-    const selectedProducts = document.querySelectorAll('input[name="selectedProducts"]:checked');
-    if (selectedProducts.length === 0) {
-        document.getElementById('error-message').innerText = 'Selecione ao menos um produto para finalizar a venda.';
-        return false;
-    }
-
-    const formaPagamento = document.querySelector('select[name="formaPagamento"]').value;
-    if (!formaPagamento) {
-        document.getElementById('error-message').innerText = 'Informe a forma de pagamento.';
-        return false;
-    }
-
-    const nomeCliente = document.querySelector('input[name="nomeCliente"]').value.trim();
-
-    const customerExists = document.getElementById('customerExists').value === 'true';
- 
-
-    if (nomeCliente && customerExists == 'true') {
-        const userConfirmed = confirm("Cliente não encontrado. Deseja cadastrar este cliente?");
-        if (userConfirmed) {
-     
-           // window.location.href = '/Clientes/Create?nome=' + encodeURIComponent(nomeCliente);
-            window.location.href = '/Clientes/Create?returnUrl=' + encodeURIComponent(window.location.href);
-            return false; 
-        } else {
-             return true; 
-        }
-    }
-
-    return true; 
-}
-
-
-*/
