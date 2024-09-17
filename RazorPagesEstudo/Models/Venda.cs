@@ -41,15 +41,12 @@ namespace RazorPagesEstudo.Models
             }
         }
 
-
         public string GerarCupomFiscal()
         {
             var receipt = new System.Text.StringBuilder();
             receipt.AppendLine("********** CUPOM FISCAL **********");
             receipt.AppendLine($"Data: {DateTime.Now}");
-            // receipt.AppendLine($"Forma de Pagamento: {FormaPagamento}");
             receipt.AppendLine($"Forma de Pagamento: {EscolherFormaPagamento(FormaPagamento)}");
-
 
             if (Cliente != null)
             {
@@ -60,14 +57,14 @@ namespace RazorPagesEstudo.Models
             }
             else
             {
-               
                 receipt.AppendLine("Cliente: Não informado");
             }
 
             receipt.AppendLine("------------------------------");
-
             receipt.AppendLine("------ Produtos Comprados ------");
-            foreach (var item in ItensVenda)
+
+            
+            foreach (var item in ItensVenda) 
             {
                 receipt.AppendLine($"{item.Produto.Nome} - Qtd: {item.Quantidade} - Preço: {item.ValorTotal:C}");
             }
@@ -78,6 +75,7 @@ namespace RazorPagesEstudo.Models
 
             return receipt.ToString();
         }
+
 
         public string EscolherFormaPagamento(string input)
         {

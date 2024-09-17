@@ -46,10 +46,9 @@ namespace RazorPagesEstudo.Pages.Vendas
             ClientesDisponiveis = await _context.Cliente.ToListAsync();
             return Page();
         }
-     
+
         public async Task<IActionResult> OnPostAsync(int[] selectedProducts, int[] quantidades, string formaPagamento, string cpfCnpj)
         {
-            
             if (selectedProducts.Length == 0 || string.IsNullOrEmpty(formaPagamento) || selectedProducts.Length != quantidades.Length)
             {
                 ModelState.AddModelError(string.Empty, "Selecione produtos e informe a forma de pagamento. As quantidades devem corresponder aos produtos.");
@@ -79,15 +78,24 @@ namespace RazorPagesEstudo.Pages.Vendas
             var novaVenda = new Models.Venda
             {
                 FormaPagamento = formaPagamento,
-                ValorTotal = total, 
+                ValorTotal = total,
                 Cliente = Cliente,
+                ItensVenda = ItensVenda 
             };
 
             try
             {
-                _vendaService.AddVenda(novaVenda);
+                var vendaCriada = _vendaService.AddVenda(novaVenda);
+
+                foreach (var item in ItensVenda)
+                {
+                    item.VendaId = vendaCriada.Id; 
+                    _context.ItemVenda.Add(item); 
+                }
+                await _context.SaveChangesAsync(); 
+
                 _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
-                return RedirectToPage("Confirmacao", new { vendaId = novaVenda.Id });
+                return RedirectToPage("Confirmacao", new { vendaId = vendaCriada.Id });
             }
             catch (InvalidOperationException ex)
             {
@@ -96,5 +104,7 @@ namespace RazorPagesEstudo.Pages.Vendas
                 return Page();
             }
         }
+
+
     }
 }
