@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using RazorPagesEstudo.Data;
 using RazorPagesEstudo.Models;
 using RazorPagesEstudo.Services;
 using System;
@@ -14,36 +11,30 @@ namespace RazorPagesEstudo.Pages.Vendas
 {
     public class IndexModel : PageModel
     {
-        private readonly RazorPagesEstudoContext _context;
         private readonly VendaService _vendaService;
 
-        public IndexModel(RazorPagesEstudoContext context, VendaService vendaService)
+        public IndexModel(VendaService vendaService)
         {
-            _context = context;
             _vendaService = vendaService;
         }
 
         [BindProperty]
         public List<Produto> ProdutosDisponiveis { get; set; }
         [BindProperty]
-        public List<Cliente> ClientesDisponiveis { get; set; }
-        [BindProperty]
         public List<ItemVenda> ItensVenda { get; set; } = new List<ItemVenda>();
         [BindProperty]
         public string FormaPagamento { get; set; }
         [BindProperty]
         public string NomeCliente { get; set; }
-        public string cpfCnpj { get; set; }
+        public string CpfCnpj { get; set; }
         public Cliente Cliente { get; set; }
-        //public Pessoa Pessoa { get; set; }
 
         public decimal Total { get; private set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
-            ProdutosDisponiveis = await _context.Produto.ToListAsync();
+            ProdutosDisponiveis = await _vendaService.GetAvailableProductsAsync();
 
-            ClientesDisponiveis = await _context.Cliente.ToListAsync();
             return Page();
         }
 
@@ -56,7 +47,7 @@ namespace RazorPagesEstudo.Pages.Vendas
                 var produtoId = selectedProducts[i];
                 var quantidade = quantidades[i];
 
-                var produto = await _context.Produto.FindAsync(produtoId);
+                var produto = await _vendaService.GetProdutoByIdAsync(produtoId);
                 if (produto != null && quantidade > 0)
                 {
                     var itemVenda = new ItemVenda(produto, quantidade);
@@ -64,7 +55,7 @@ namespace RazorPagesEstudo.Pages.Vendas
                 }
             }
 
-            Cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.CpfCnpj == cpfCnpj);
+            Cliente = await _vendaService.GetClienteByCpfCnpjAsync(cpfCnpj);
 
             decimal total = ItensVenda.Sum(item => item.ValorTotal);
 
@@ -73,30 +64,24 @@ namespace RazorPagesEstudo.Pages.Vendas
                 FormaPagamento = formaPagamento,
                 ValorTotal = total,
                 Cliente = Cliente,
-                ItensVenda = ItensVenda 
+                ItensVenda = ItensVenda
             };
 
             try
             {
                 var vendaCriada = _vendaService.AddVenda(novaVenda);
-
-                foreach (var item in ItensVenda)
-                {
-                    item.VendaId = vendaCriada.Id; 
-                    _context.ItemVenda.Add(item); 
-                }
-                await _context.SaveChangesAsync(); 
+                _vendaService.AddItensVenda(ItensVenda, vendaCriada.Id);
 
                 _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
+
                 return RedirectToPage("Confirmacao", new { vendaId = vendaCriada.Id });
             }
             catch (Exception ex)
             {
+                ProdutosDisponiveis = await _vendaService.GetAvailableProductsAsync();  
                 ModelState.AddModelError(string.Empty, "Erro ao registrar a venda: " + ex.Message);
                 return Page();
             }
         }
-
-
     }
 }
