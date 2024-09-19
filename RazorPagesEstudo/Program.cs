@@ -21,8 +21,17 @@ namespace RazorPagesEstudo
             builder.Services.AddDbContext<RazorPagesEstudoContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            // Register the VendaService with the connection string
-            builder.Services.AddScoped<VendaService>(provider => new VendaService(connectionString));
+            // Register the HttpClient for ClienteApiClient
+            builder.Services.AddHttpClient<ClienteApiClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://your-api-url/"); // usar a URL da API de cliente 
+            });
+
+            builder.Services.AddScoped<VendaService>(provider =>
+            {
+                var clienteApiClient = provider.GetRequiredService<ClienteApiClient>();
+                return new VendaService(connectionString, clienteApiClient);
+            });
 
             // Register other services
             builder.Services.AddRazorPages();

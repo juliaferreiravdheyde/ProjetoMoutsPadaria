@@ -9,10 +9,12 @@ namespace RazorPagesEstudo.Services
     public class VendaService
     {
         private readonly string _connectionString;
+        private readonly ClienteApiClient _clienteApiClient;
 
-        public VendaService(string connectionString)
+        public VendaService(string connectionString, ClienteApiClient clienteApiClient)
         {
-            _connectionString = connectionString; 
+            _connectionString = connectionString;
+            _clienteApiClient = clienteApiClient;
         }
 
         private SqlConnection GetConnection()
@@ -210,5 +212,22 @@ namespace RazorPagesEstudo.Services
                 }
             }
         }
+/* ideia para usar a api de pontos
+        public async Task AtualizarPontosFidelidadeAsync(Cliente cliente, List<ItemVenda> itensVenda)
+        {
+            if (cliente != null)
+            {
+                int pontosGanhosPorItem = itensVenda.Count;
+                cliente.PontosFidelidade += pontosGanhosPorItem;
+
+                // Call the API to update the loyalty points
+                bool success = await _clienteApiClient.UpdatePontosFidelidadeAsync(cliente.Id, cliente.PontosFidelidade);
+                if (!success)
+                {
+                    Console.WriteLine("Erro ao atualizar pontos de fidelidade no API.");
+                }
+            }
+        }
+*/
     }
 }
