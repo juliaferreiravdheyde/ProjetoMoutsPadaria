@@ -45,12 +45,11 @@ namespace RazorPagesEstudo.Pages.Vendas
             for (int i = 0; i < selectedProducts.Length; i++)
             {
                 var produtoId = selectedProducts[i];
-                var quantidade = quantidades[i];
 
                 var produto = await _vendaService.GetProdutoByIdAsync(produtoId);
-                if (produto != null && quantidade > 0)
+                if (produto != null && quantidades[i] > 0)
                 {
-                    var itemVenda = new ItemVenda(produto, quantidade);
+                    var itemVenda = new ItemVenda(produto, quantidades[i]);
                     ItensVenda.Add(itemVenda);
                 }
             }

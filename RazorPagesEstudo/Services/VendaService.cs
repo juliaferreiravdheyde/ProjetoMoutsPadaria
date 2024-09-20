@@ -181,12 +181,11 @@ namespace RazorPagesEstudo.Services
                 }
             }
         }
-
         public void AtualizarPontosFidelidade(Cliente cliente, List<ItemVenda> itensVenda)
         {
             if (cliente != null)
             {
-                int pontosGanhosPorItem = itensVenda.Count; 
+                int pontosGanhosPorItem = itensVenda.Count;
                 cliente.PontosFidelidade += pontosGanhosPorItem;
 
                 using (var connection = GetConnection())
@@ -212,22 +211,24 @@ namespace RazorPagesEstudo.Services
                 }
             }
         }
-/* ideia para usar a api de pontos
-        public async Task AtualizarPontosFidelidadeAsync(Cliente cliente, List<ItemVenda> itensVenda)
+
+        /* ideia para usar a api de pontos         
+        public async Task AtualizarPontosFidelidade(Cliente cliente, List<ItemVenda> itensVenda)
         {
             if (cliente != null)
             {
                 int pontosGanhosPorItem = itensVenda.Count;
                 cliente.PontosFidelidade += pontosGanhosPorItem;
 
-                // Call the API to update the loyalty points
-                bool success = await _clienteApiClient.UpdatePontosFidelidadeAsync(cliente.Id, cliente.PontosFidelidade);
+                bool success = await _clienteApiClient.UpdatePontosFidelidadeAsync(cliente);
+
                 if (!success)
                 {
                     Console.WriteLine("Erro ao atualizar pontos de fidelidade no API.");
                 }
             }
         }
-*/
+        */
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using RazorPagesEstudo.Models;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
@@ -11,9 +12,9 @@ public class ClienteApiClient
         _httpClient = httpClient;
     }
 
-    public async Task<bool> UpdatePontosFidelidadeAsync(int clienteId, int novosPontos)
+    public async Task<bool> UpdatePontosFidelidadeAsync(Cliente cliente)
     {
-        var response = await _httpClient.PutAsJsonAsync($"api/clientes/{clienteId}/pontos", novosPontos);
+        var response = await _httpClient.PutAsJsonAsync($"api/clientes/{cliente.Id}/pontos", cliente);
         return response.IsSuccessStatusCode;
     }
 }
