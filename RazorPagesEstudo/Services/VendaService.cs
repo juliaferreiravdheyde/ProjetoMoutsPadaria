@@ -86,12 +86,12 @@ namespace RazorPagesEstudo.Services
                 SELECT c.Id, c.PontosFidelidade
                 FROM Cliente c
                 INNER JOIN Pessoa p ON c.Id = p.Id
-                WHERE p.CpfCnpj = @CpfCnpj";
+                WHERE p.CpfCnpj = @cpfCnpj";
 
             using (SqlConnection connection = GetConnection())
             using (SqlCommand command = new SqlCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@CpfCnpj", cpfCnpj);
+                command.Parameters.AddWithValue("@cpfCnpj", cpfCnpj);
 
                 try
                 {
@@ -110,7 +110,8 @@ namespace RazorPagesEstudo.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Erro ao buscar o cliente: " + ex.Message);
+                    //Console.WriteLine("Erro ao buscar o cliente: " + ex.Message);
+                    throw new Exception("Erro ao buscar o cliente: " + ex.Message);
                 }
             }
 
@@ -181,8 +182,7 @@ namespace RazorPagesEstudo.Services
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Erro: " + ex.Message);
-                        throw;
+                        throw new Exception("Erro ao Adicionar Venda " + ex.Message);
                     }
                 }
             }
@@ -212,7 +212,7 @@ namespace RazorPagesEstudo.Services
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Erro: " + ex.Message);
+                        throw new Exception("Erro ao Adicionar Itens da Venda " + ex.Message);
                     }
                     finally
                     {
@@ -244,8 +244,8 @@ namespace RazorPagesEstudo.Services
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine("Erro: " + ex.Message);
-                            }
+                                throw new Exception("Erro ao Atualizar Pontos Fidelidade " + ex.Message);
+                    }
                             finally
                             {
                                 connection.Close();
