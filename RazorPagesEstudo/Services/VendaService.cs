@@ -3,6 +3,7 @@ using RazorPagesEstudo.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace RazorPagesEstudo.Services
 {
@@ -115,7 +116,7 @@ namespace RazorPagesEstudo.Services
 
             return cliente;
         }
-
+   
         public Venda AddVenda(Venda venda)
         {
             if (venda.ItensVenda == null || venda.ItensVenda.Count == 0)
@@ -125,27 +126,66 @@ namespace RazorPagesEstudo.Services
 
             using (var connection = GetConnection())
             {
-                string insertQuery = @"
-                    INSERT INTO Venda (FormaPagamento, ValorTotal, ClienteId) 
-                    VALUES (@FormaPagamento, @ValorTotal, @ClienteId); 
-                    SELECT SCOPE_IDENTITY();";
+                connection.Open();
 
-                SqlCommand command = new SqlCommand(insertQuery, connection);
-                command.Parameters.AddWithValue("@FormaPagamento", venda.FormaPagamento);
-                command.Parameters.AddWithValue("@ValorTotal", venda.ValorTotal);
-                command.Parameters.AddWithValue("@ClienteId", venda.Cliente?.Id ?? (object)DBNull.Value);
-
-                try
+                foreach (var item in venda.ItensVenda)
                 {
-                    connection.Open();
-                    venda.Id = Convert.ToInt32(command.ExecuteScalar()); 
+                    var produtoId = item.ProdutoId;
+                    int quantidadeVenda = item.Quantidade;
+
+                    string checkStockQuery = @"
+                            SELECT QuantidadeEstoque
+                            FROM produto 
+                            WHERE Id = @produtoId";
+
+                    using (var stockCommand = new SqlCommand(checkStockQuery, connection))
+                    {
+                        stockCommand.Parameters.AddWithValue("@produtoId", produtoId);
+
+                        var quantidadeEstoque = (int)stockCommand.ExecuteScalar();
+
+                        if (quantidadeEstoque < quantidadeVenda)
+                        {
+                            throw new InvalidOperationException($"Quantidade para o produto '{item.Produto.Nome}' excede o estoque. " +$"Quantidade disponível: {quantidadeEstoque}."
+ );
+                        }
+
+                        string updateStockQuery = @"
+                                UPDATE produto 
+                                SET QuantidadeEstoque = QuantidadeEstoque - @quantidade 
+                                WHERE Id = @produtoId";
+
+                        using (var updateCommand = new SqlCommand(updateStockQuery, connection))
+                        {
+                            updateCommand.Parameters.AddWithValue("@quantidade", quantidadeVenda);
+                            updateCommand.Parameters.AddWithValue("@produtoId", produtoId);
+                            updateCommand.ExecuteNonQuery();
+                        }
+                    }
                 }
-                catch (Exception ex)
+
+                string insertQuery = @"
+                        INSERT INTO Venda (FormaPagamento, ValorTotal, ClienteId) 
+                        VALUES (@FormaPagamento, @ValorTotal, @ClienteId); 
+                        SELECT SCOPE_IDENTITY();";
+
+                using (var insertCommand = new SqlCommand(insertQuery, connection))
                 {
-                    Console.WriteLine("Erro: " + ex.Message);
+                    insertCommand.Parameters.AddWithValue("@FormaPagamento", venda.FormaPagamento);
+                    insertCommand.Parameters.AddWithValue("@ValorTotal", venda.ValorTotal);
+                    insertCommand.Parameters.AddWithValue("@ClienteId", venda.Cliente?.Id ?? (object)DBNull.Value);
+
+                    try
+                    {
+                        venda.Id = Convert.ToInt32(insertCommand.ExecuteScalar());
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Erro: " + ex.Message);
+                        throw;
+                    }
                 }
             }
-
             return venda;
         }
 
@@ -181,54 +221,56 @@ namespace RazorPagesEstudo.Services
                 }
             }
         }
+
+        
         public void AtualizarPontosFidelidade(Cliente cliente, List<ItemVenda> itensVenda)
-        {
-            if (cliente != null)
-            {
-                int pontosGanhosPorItem = itensVenda.Count;
-                cliente.PontosFidelidade += pontosGanhosPorItem;
-
-                using (var connection = GetConnection())
                 {
-                    string updateQuery = "UPDATE Cliente SET PontosFidelidade = @PontosFidelidade WHERE Id = @ClienteId";
-                    SqlCommand command = new SqlCommand(updateQuery, connection);
-                    command.Parameters.AddWithValue("@PontosFidelidade", cliente.PontosFidelidade);
-                    command.Parameters.AddWithValue("@ClienteId", cliente.Id);
+                    if (cliente != null)
+                    {
+                        int pontosGanhosPorItem = itensVenda.Count;
+                        cliente.PontosFidelidade += pontosGanhosPorItem;
 
-                    try
-                    {
-                        connection.Open();
-                        command.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Erro: " + ex.Message);
-                    }
-                    finally
-                    {
-                        connection.Close();
+                        using (var connection = GetConnection())
+                        {
+                            string updateQuery = "UPDATE Cliente SET PontosFidelidade = @PontosFidelidade WHERE Id = @ClienteId";
+                            SqlCommand command = new SqlCommand(updateQuery, connection);
+                            command.Parameters.AddWithValue("@PontosFidelidade", cliente.PontosFidelidade);
+                            command.Parameters.AddWithValue("@ClienteId", cliente.Id);
+
+                            try
+                            {
+                                connection.Open();
+                                command.ExecuteNonQuery();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Erro: " + ex.Message);
+                            }
+                            finally
+                            {
+                                connection.Close();
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        /* ideia para usar a api de pontos         
-        public async Task AtualizarPontosFidelidade(Cliente cliente, List<ItemVenda> itensVenda)
-        {
-            if (cliente != null)
-            {
-                int pontosGanhosPorItem = itensVenda.Count;
-                cliente.PontosFidelidade += pontosGanhosPorItem;
-
-                bool success = await _clienteApiClient.UpdatePontosFidelidadeAsync(cliente);
-
-                if (!success)
+                /* ideia para usar a api de pontos         
+                public async Task AtualizarPontosFidelidade(Cliente cliente, List<ItemVenda> itensVenda)
                 {
-                    Console.WriteLine("Erro ao atualizar pontos de fidelidade no API.");
+                    if (cliente != null)
+                    {
+                        int pontosGanhosPorItem = itensVenda.Count;
+                        cliente.PontosFidelidade += pontosGanhosPorItem;
+
+                        bool success = await _clienteApiClient.UpdatePontosFidelidadeAsync(cliente);
+
+                        if (!success)
+                        {
+                            Console.WriteLine("Erro ao atualizar pontos de fidelidade no API.");
+                        }
+                    }
                 }
-            }
-        }
-        */
+                */
 
     }
 }
