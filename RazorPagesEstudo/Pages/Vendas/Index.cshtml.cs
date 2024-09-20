@@ -53,8 +53,14 @@ namespace RazorPagesEstudo.Pages.Vendas
                     ItensVenda.Add(itemVenda);
                 }
             }
-
-            Cliente = await _vendaService.GetClienteByCpfCnpjAsync(cpfCnpj);
+            try
+            {
+                Cliente = await _vendaService.GetClienteByCpfCnpjAsync(cpfCnpj);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Cliente nao encontrado " + ex.Message);
+            }
 
             decimal total = ItensVenda.Sum(item => item.ValorTotal);
 
