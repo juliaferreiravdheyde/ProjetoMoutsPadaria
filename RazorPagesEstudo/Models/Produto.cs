@@ -1,4 +1,6 @@
-﻿namespace RazorPagesEstudo.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace RazorPagesEstudo.Models
 {
     public class Produto
     {
@@ -7,7 +9,6 @@
         public decimal Preco { get; set; }
         public int QuantidadeEstoque { get; set; }
 
-        // Parameterless constructor for EF
         public Produto() { }
 
         public Produto(int id, string nome, decimal preco, int quantidadeEstoque)
@@ -18,16 +19,5 @@
             QuantidadeEstoque = quantidadeEstoque;
         }
 
-        public void AtualizarEstoque(int quantidadeVendida)
-        {
-            if (quantidadeVendida <= QuantidadeEstoque)
-            {
-                QuantidadeEstoque -= quantidadeVendida;
-            }
-            else
-            {
-                throw new Exception("Quantidade vendida excede o estoque disponível.");
-            }
-        }
     }
 }
