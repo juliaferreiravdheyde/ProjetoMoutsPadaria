@@ -13,22 +13,32 @@ namespace RazorPagesEstudo
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            
+            // Get the connection string
+            var connectionString = builder.Configuration.GetConnectionString("RazorPagesEstudoContext")
+                ?? throw new InvalidOperationException("Connection string 'RazorPagesEstudoContext' not found.");
+
+            // Register the DbContext if needed
             builder.Services.AddDbContext<RazorPagesEstudoContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("RazorPagesEstudoContext")
-                    ?? throw new InvalidOperationException("Connection string 'RazorPagesEstudoContext' not found.")));
+                options.UseSqlServer(connectionString));
 
+            // Register the HttpClient for ClienteApiClient
+            builder.Services.AddHttpClient<ClienteApiClient>(client =>
+            {
+                client.BaseAddress = new Uri("http://your-api-url/"); // usar a URL da API de cliente 
+            });
+
+            builder.Services.AddScoped<VendaService>(provider =>
+            {
+                var clienteApiClient = provider.GetRequiredService<ClienteApiClient>();
+                return new VendaService(connectionString, clienteApiClient);
+            });
+
+            // Register other services
             builder.Services.AddRazorPages();
-
-          
-            builder.Services.AddScoped<VendaService>();
-
-           
-            builder.Services.AddSession(); 
+            builder.Services.AddSession();
 
             var app = builder.Build();
 
-           
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
@@ -52,8 +62,7 @@ namespace RazorPagesEstudo
 
             app.UseAuthorization();
 
-       
-            app.UseSession(); 
+            app.UseSession();
 
             app.MapRazorPages();
 

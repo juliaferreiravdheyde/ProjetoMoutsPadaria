@@ -13,6 +13,14 @@ $(document).ready(function () {
     }
 });
 
+document.querySelectorAll('input[name="selectedProducts"]').forEach((checkbox) => {
+    checkbox.addEventListener('change', function () {
+        const quantityInput = document.querySelector(`input[data-produto-id="${this.value}"]`);
+        quantityInput.disabled = !this.checked;  // Disable quantity if product is not selected
+    });
+});
+
+
 function validateVendaForm() {
   /*  const selectedProducts = document.querySelectorAll('input[name="selectedProducts"]:checked');
     if (selectedProducts.length === 0) {
