@@ -6,34 +6,100 @@
 // venda-validation.js
 
 
-$(document).ready(function () {
-    var errors = $('#error-message').find('div').length;
-    if (errors > 0) {
-        $('#error-message').show();
-    }
-});
-
 document.querySelectorAll('input[name="selectedProducts"]').forEach((checkbox) => {
     checkbox.addEventListener('change', function () {
         const quantityInput = document.querySelector(`input[data-produto-id="${this.value}"]`);
-        quantityInput.disabled = !this.checked;  // Disable quantity if product is not selected
+        quantityInput.disabled = !this.checked;  
     });
 });
 
+    $(document).ready(function () {
+        var totalQuantity = 0;
+    var totalPrice = 0.0;
 
-function validateVendaForm() {
-  /*  const selectedProducts = document.querySelectorAll('input[name="selectedProducts"]:checked');
-    if (selectedProducts.length === 0) {
-        document.getElementById('error-message').innerText = 'Selecione ao menos um produto para finalizar a venda.';
-        return false;
-    }
+    $('#produtoSelect').on('change', function () {
+            var selectedProductId = $(this).val();
+    var selectedProductName = $("#produtoSelect option:selected").text();
+    var selectedProductPrice = parseFloat($("#produtoSelect option:selected").data("preco"));
 
-    const formaPagamento = document.querySelector('select[name="formaPagamento"]').value;
-    if (!formaPagamento) {
-        document.getElementById('error-message').innerText = 'Informe a forma de pagamento.';
-        return false;
-    }
-*/
+    var existingProduct = $('#produtoList').find('[data-product-id="' + selectedProductId + '"]');
+            if (existingProduct.length > 0) {
 
-    return true;
-}
+                var quantityInput = existingProduct.find('.quantity');
+                var newQuantity = parseInt(quantityInput.val()) + 1;
+                quantityInput.val(newQuantity);
+                totalQuantity += 1;
+                totalPrice += selectedProductPrice;
+            } else {
+
+                $('#produtoList').append(`
+                    <div class="form-check d-flex align-items-center mb-3" data-product-id="${selectedProductId}">
+                        <span class="me-2">${selectedProductName}</span>
+                        <input type="number" name="quantidades" class="form-control quantity" value="1" min="1" />
+                        <button type="button" class="btn btn-danger btn-sm ms-2 remove-product">
+                            <i class="fas fa-trash"></i> <!-- Font Awesome trash icon -->
+                        </button>
+                        <input type="hidden" name="selectedProducts" value="${selectedProductId}" />
+                    </div>
+                `);
+
+    totalQuantity += 1;
+    totalPrice += selectedProductPrice;
+            }
+
+    $('#totalQuantity').text(totalQuantity);
+    $('#totalPrice').text(totalPrice.toFixed(2));
+        });
+
+    $('#produtoList').on('change', '.quantity', function () {
+            var quantityChange = parseInt($(this).val());
+    var productId = $(this).closest('[data-product-id]').data('product-id');
+    var productPrice = parseFloat($("#produtoSelect option[value='" + productId + "']").data("preco"));
+
+    var currentTotal = totalPrice - (parseInt($(this).attr('data-old-quantity')) * productPrice);
+    totalPrice = currentTotal + (quantityChange * productPrice);
+
+    $(this).attr('data-old-quantity', quantityChange);
+
+            totalQuantity = $('#produtoList').find('.quantity').toArray().reduce((total, input) => total + parseInt($(input).val()), 0);
+                            $('#totalQuantity').text(totalQuantity);
+                            $('#totalPrice').text(totalPrice.toFixed(2));
+                            });
+
+    $('#produtoList').on('click', '.remove-product', function () {
+            var quantityInput = $(this).siblings('.quantity');
+            var quantityToRemove = parseInt(quantityInput.val());
+            var productPrice = parseFloat($("#produtoSelect option[value='" + $(this).closest('[data-product-id]').data('product-id') + "']").data("preco"));
+
+    totalQuantity -= quantityToRemove;
+    totalPrice -= (quantityToRemove * productPrice);
+
+    $(this).closest('[data-product-id]').remove();
+
+    $('#totalQuantity').text(totalQuantity);
+    $('#totalPrice').text(totalPrice.toFixed(2));
+        });
+
+    $('#openModal').on('click', function () {
+        $('#paymentModal').modal('show');
+        });
+
+    $('#confirmPayment').on('click', function () {
+            var formaPagamento = $('#formaPagamento').val();
+            var cpfCnpj = $('#cpfCnpj').val();
+
+    $('<input>').attr({
+        type: 'hidden',
+        name: 'formaPagamento',
+        value: formaPagamento
+            }).appendTo('#vendaForm');
+
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'cpfCnpj',
+            value: cpfCnpj
+            }).appendTo('#vendaForm');
+
+            $('#vendaForm').submit();
+        });
+    });

@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
-using RazorPagesEstudo.Data;
+using RazorPagesEstudo.Models; // Adjusted namespace for ApplicationDbContext
 using RazorPagesEstudo.Services;
+using System;
+using RazorPagesEstudo.Data;
 
 namespace RazorPagesEstudo
 {
@@ -13,20 +15,43 @@ namespace RazorPagesEstudo
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Get the connection string
+            // Get the connection string for RazorPagesEstudoContext
             var connectionString = builder.Configuration.GetConnectionString("RazorPagesEstudoContext")
                 ?? throw new InvalidOperationException("Connection string 'RazorPagesEstudoContext' not found.");
 
-            // Register the DbContext if needed
+            // Register the RazorPagesEstudoContext
             builder.Services.AddDbContext<RazorPagesEstudoContext>(options =>
                 options.UseSqlServer(connectionString));
 
+            // Get the connection string for ApplicationDbContext
+            /*
+            var applicationConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            */
+            // Register ApplicationDbContext
+            /*
+            builder.Services.AddDbContext<DbContext>(options =>
+                options.UseSqlServer(applicationConnectionString));
+            */
             // Register the HttpClient for ClienteApiClient
             builder.Services.AddHttpClient<ClienteApiClient>(client =>
             {
-                client.BaseAddress = new Uri("http://your-api-url/"); // usar a URL da API de cliente 
+                client.BaseAddress = new Uri("http://your-api-url/"); // Use the URL of the Cliente API
             });
 
+            // Register ProdutoService
+            builder.Services.AddScoped<ProdutoService>(provider =>
+            {
+                return new ProdutoService(connectionString);
+            });
+
+            // Register ClienteService
+            builder.Services.AddScoped<ClienteService>(provider =>
+            {
+                return new ClienteService(connectionString);
+            });
+
+            // Register VendaService
             builder.Services.AddScoped<VendaService>(provider =>
             {
                 var clienteApiClient = provider.GetRequiredService<ClienteApiClient>();
