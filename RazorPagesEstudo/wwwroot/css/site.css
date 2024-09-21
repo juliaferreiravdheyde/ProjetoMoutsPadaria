@@ -36,3 +36,17 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+
+#produtoList {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.form-control.quantity {
+    width: 50px; 
+    padding: 5px; 
+    font-size: 14px; 
+}
+

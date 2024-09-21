@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using RazorPagesEstudo.Models;
 using RazorPagesEstudo.Services;
 using System;
@@ -12,11 +13,16 @@ namespace RazorPagesEstudo.Pages.Vendas
     public class IndexModel : PageModel
     {
         private readonly VendaService _vendaService;
+        private readonly ProdutoService _produtoService;
+        private readonly ClienteService _clienteService;
 
-        public IndexModel(VendaService vendaService)
+        public IndexModel(VendaService vendaService, ProdutoService produtoService, ClienteService clienteService)
         {
             _vendaService = vendaService;
-        }
+            _produtoService = produtoService;
+            _clienteService = clienteService;
+    }
+
 
         [BindProperty]
         public List<Produto> ProdutosDisponiveis { get; set; }
@@ -33,7 +39,7 @@ namespace RazorPagesEstudo.Pages.Vendas
 
         public async Task<IActionResult> OnGetAsync()
         {
-            ProdutosDisponiveis = await _vendaService.GetAvailableProductsAsync();
+            ProdutosDisponiveis = await _produtoService.GetAvailableProductsAsync();
 
             return Page();
         }
@@ -46,21 +52,27 @@ namespace RazorPagesEstudo.Pages.Vendas
             {
                 var produtoId = selectedProducts[i];
 
-                var produto = await _vendaService.GetProdutoByIdAsync(produtoId);
+                var produto = await _produtoService.GetProdutoByIdAsync(produtoId);
                 if (produto != null && quantidades[i] > 0)
                 {
                     var itemVenda = new ItemVenda(produto, quantidades[i]);
                     ItensVenda.Add(itemVenda);
                 }
             }
-            try
+
+            if (cpfCnpj != null) 
             {
-                Cliente = await _vendaService.GetClienteByCpfCnpjAsync(cpfCnpj);
+                try
+                {
+                    Cliente = await _clienteService.GetClienteByCpfCnpjAsync(cpfCnpj);
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, "Cliente não encontrado: " + ex.Message);
+                    return Page();
+                }
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, "Cliente nao encontrado " + ex.Message);
-            }
+
 
             decimal total = ItensVenda.Sum(item => item.ValorTotal);
 
@@ -74,7 +86,7 @@ namespace RazorPagesEstudo.Pages.Vendas
 
             try
             {
-                var vendaCriada = _vendaService.AddVenda(novaVenda);
+                var vendaCriada = await _vendaService.AddVendaAsync(novaVenda); 
                 _vendaService.AddItensVenda(ItensVenda, vendaCriada.Id);
 
                 _vendaService.AtualizarPontosFidelidade(Cliente, ItensVenda);
@@ -83,7 +95,7 @@ namespace RazorPagesEstudo.Pages.Vendas
             }
             catch (Exception ex)
             {
-                ProdutosDisponiveis = await _vendaService.GetAvailableProductsAsync();  
+                ProdutosDisponiveis = await _produtoService.GetAvailableProductsAsync();
                 ModelState.AddModelError(string.Empty, "Erro ao registrar a venda: " + ex.Message);
                 return Page();
             }

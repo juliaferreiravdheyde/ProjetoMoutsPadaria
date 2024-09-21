@@ -6,34 +6,67 @@
 // venda-validation.js
 
 
-$(document).ready(function () {
-    var errors = $('#error-message').find('div').length;
-    if (errors > 0) {
-        $('#error-message').show();
-    }
-});
-
 document.querySelectorAll('input[name="selectedProducts"]').forEach((checkbox) => {
     checkbox.addEventListener('change', function () {
         const quantityInput = document.querySelector(`input[data-produto-id="${this.value}"]`);
-        quantityInput.disabled = !this.checked;  // Disable quantity if product is not selected
+        quantityInput.disabled = !this.checked;  
     });
 });
 
+$(document).ready(function () {
+    var totalQuantity = 0;
+    var totalPrice = 0.0;
 
-function validateVendaForm() {
-  /*  const selectedProducts = document.querySelectorAll('input[name="selectedProducts"]:checked');
-    if (selectedProducts.length === 0) {
-        document.getElementById('error-message').innerText = 'Selecione ao menos um produto para finalizar a venda.';
-        return false;
-    }
+    $('#produtoSelect').on('change', function () {
+        var selectedProductId = $(this).val();
+        var selectedProductName = $("#produtoSelect option:selected").text();
+        var selectedProductPrice = parseFloat($("#produtoSelect option:selected").data("preco"));
 
-    const formaPagamento = document.querySelector('select[name="formaPagamento"]').value;
-    if (!formaPagamento) {
-        document.getElementById('error-message').innerText = 'Informe a forma de pagamento.';
-        return false;
-    }
-*/
+        var existingProduct = $('#produtoList').find('[data-product-id="' + selectedProductId + '"]');
+        if (existingProduct.length > 0) {
+            var quantityInput = existingProduct.find('.quantity');
+            var newQuantity = parseInt(quantityInput.val()) + 1;
+            quantityInput.val(newQuantity);
+            totalQuantity += 1;
+            totalPrice += selectedProductPrice;
+        } else {
+            $('#produtoList').append(`
+                <div class="form-check d-flex align-items-center mb-3" data-product-id="${selectedProductId}">
+                    <span class="me-2">${selectedProductName}</span>
+                    <input type="number" name="quantidades" class="form-control w-25 quantity" value="1" readonly />
+                    <input type="hidden" name="selectedProducts" value="${selectedProductId}" />
+                </div>
+            `);
+            totalQuantity += 1;
+            totalPrice += selectedProductPrice;
+        }
 
-    return true;
-}
+        $('#totalQuantity').text(totalQuantity);
+        $('#totalPrice').text(totalPrice.toFixed(2));
+    });
+
+    $('#openModal').on('click', function () {
+        $('#paymentModal').modal('show');
+    });
+
+
+    $('#confirmPayment').on('click', function () {
+
+        var formaPagamento = $('#formaPagamento').val();
+        var cpfCnpj = $('#cpfCnpj').val();
+
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'formaPagamento',
+            value: formaPagamento
+        }).appendTo('#vendaForm');
+
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'cpfCnpj',
+            value: cpfCnpj
+        }).appendTo('#vendaForm');
+
+        $('#vendaForm').submit();
+    });
+});
