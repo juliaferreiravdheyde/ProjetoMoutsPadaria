@@ -25,7 +25,7 @@ $(document).ready(function () {
 
         if (existingProduct.length > 0) {
             var quantityInput = existingProduct.find('.quantity');
-            var newQuantity = parseInt(quantityInput.val()) || 0; // Fallback to 0 if NaN
+            var newQuantity = parseInt(quantityInput.val()) || 0; 
             newQuantity += 1;
             quantityInput.val(newQuantity);
             totalQuantity += 1;
@@ -50,12 +50,12 @@ $(document).ready(function () {
     });
 
     $('#produtoList').on('change', '.quantity', function () {
-        var quantityChange = parseInt($(this).val()) || 0; // Fallback to 0 if NaN
+        var quantityChange = parseInt($(this).val()) || 0; 
         var productId = $(this).closest('[data-product-id]').data('product-id');
         var productPrice = parseFloat($("#produtoSelect option[value='" + productId + "']").data("preco"));
 
-        // Calculate the current total based on old quantity
-        var oldQuantity = parseInt($(this).attr('data-old-quantity')) || 0; // Ensure it's a valid number
+      
+        var oldQuantity = parseInt($(this).attr('data-old-quantity')) || 0; 
         var currentTotal = totalPrice - (oldQuantity * productPrice);
         totalPrice = currentTotal + (quantityChange * productPrice);
 
@@ -68,7 +68,7 @@ $(document).ready(function () {
 
     $('#produtoList').on('click', '.remove-product', function () {
         var quantityInput = $(this).siblings('.quantity');
-        var quantityToRemove = parseInt(quantityInput.val()) || 0; // Fallback to 0 if NaN
+        var quantityToRemove = parseInt(quantityInput.val()) || 0; 
         var productPrice = parseFloat($("#produtoSelect option[value='" + $(this).closest('[data-product-id]').data('product-id') + "']").data("preco"));
 
         totalQuantity -= quantityToRemove;
