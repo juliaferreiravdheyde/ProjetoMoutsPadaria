@@ -33,7 +33,7 @@ $(document).ready(function () {
             $('#produtoList').append(`
                 <div class="form-check d-flex align-items-center mb-3" data-product-id="${selectedProductId}">
                     <span class="me-2">${selectedProductName}</span>
-                    <input type="number" name="quantidades" class="form-control w-25 quantity" value="1" readonly />
+                    <input type="number" name="quantidades" class="form-control quantity" value="1" readonly />
                     <input type="hidden" name="selectedProducts" value="${selectedProductId}" />
                 </div>
             `);
