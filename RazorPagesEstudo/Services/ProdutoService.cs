@@ -79,7 +79,6 @@ namespace RazorPagesEstudo.Services
                 }
             }
         }
-
         public async Task<List<Produto>> GetAvailableProductsAsync()
         {
             var produtos = new List<Produto>();
@@ -106,7 +105,6 @@ namespace RazorPagesEstudo.Services
 
             return produtos;
         }
-
 
         public async Task<Produto> GetProdutoByIdAsync(int produtoId)
         {
